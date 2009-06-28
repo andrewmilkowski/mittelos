@@ -1,1 +1,77 @@
-Putting some stuff in the README just so I can learn more about egit/github.
+Mittelos is an implementation of the Event Calculus in Scala.
+
+The Event Calculus is a logical representation of actions and their effects.
+Probably the best overview of the Event Calculus is
+<http://www.doc.ic.ac.uk/~mpsha/ECExplained.pdf>
+while a comprehensive treatment can be found in
+<http://www.amazon.com/Commonsense-Reasoning-Erik-T-Mueller/dp/0123693888/ref=sr_1_1?ie=UTF8&s=books&qid=1246222141&sr=1-1>.
+Some situations the Event Calculus can handle (shamelessly ripped off from "Commonsense
+Reasoning"):
+
+1. In the living room, Lisa picked up a newspaper and walked into the kitchen. Where did
+the newspaper end up? It ended up in the kitchen.
+
+2. Kate set a book on a coffee table and left the living room. When she returned, the book
+was gone. What happened to the book? Someone must have taken it.
+
+3. Jamie walks to the kitchen sink, puts the stopper in the drain, turns on the faucet, and
+leaves the kitchen. What will happen as a result? The water level will increase until it
+reaches the rim of the sink. Then the water will start spilling onto the floor.
+
+4. Kimberly turns on a fan. What will happen? The fan will start turning. What if the fan is
+not plugged in? Then the fan will not start turning.
+
+5. A hungry cat saw some food on a nearby table. The cat jumped onto a chair near the table.
+What was the cat about to do? The cat was about to jump from the chair onto the table in
+order to eat the food.
+
+Imagine being able to write software that observes what your users do and can then diagnose
+problems, plan courses of action to reach goals, and even infer probable goals! And doing
+all of that declaratively.
+
+The Event Calculus is formalized in terms of the first-order predicate calculus. A major
+thesis of "Commonsense Reasoning" is that if one restricts timepoints in the Event
+Calculus to the integers (yielding the "Discrete Event Calculus," hereafter "DEC"), then
+there is a natural and efficient encoding of the DEC in terms of the first-order
+propositional calculus such that triply-nested quantification over timepoints becomes
+"only" doubly-nested, and quantification is treated in the obvious way (that is, by making
+the closed-world assumption, with existential quantification becoming a running disjunction
+and universal quantification becoming a running conjunction). Then reasoning reduces to
+solving the boolean propositional satisfiability problem, i.e. the problem can be handed
+off to any of the available amazing open-source SAT solvers. This has been implemented, in
+a combination of Python and C:
+<http://decreasoner.sourceforge.net>
+The decreasoner essentially implements an external first-order predicate calculus DSL in
+Python, forking a C program to encode the logic program, along with some special-casing
+to handle the Event Calculus' need to support circumscription, in the standard DIMACS format
+that virtually every SAT solver accepts, then forks a standalone SAT solver (it likes
+Relsat but will also fork Walksat or MiniSat), then converts the results back to bindings
+for the variables defined in the DSL. It does all of this through temporary files.
+
+Yech.
+
+So the goal is to create an internal, or embedded (the terminology seems unsettled) DSL
+for the first-order predicate calculus in Scala, and to provide an implementation of the DEC
+in it. I strongly suspect that this can be done well by leveraging
+<http://alloy.mit.edu/kodkod>
+because it already supports the first-order predicate calculus, is written in Java, is
+explicitly designed to be embedded (even providing its own AST package), and calls directly
+to any of SAT4j, MiniSat (via JNI), or zChaff (via JNI). kodkod also seems to perform
+extremely well relative to related systems, primarily due to a few novel contributions:
+1) A symmetry-breaking algorithm that greatly simplifies the constructed SAT problem,
+2) The ability to share sub-expressions in the API (so its AST is more accurately a DAG),
+3) Support for partial instances (known values can be provided directly rather than being
+encoded as constraints in the problem, thereby forcing the SAT solver to "rediscover" the
+already-known values). The kodkod papers go into excruciating detail on these and other
+points.
+
+NB. I could be wrong about this, and I may need to either fork kodkod, or abandon it
+completely and come up with my own encoding analogous to that done by the C program in
+the decreasoner. Also, I see a tantalizing possible connection to FRP (Functional Reactive
+Programming) and/or AOP, but one (big) thing at a time.
+
+About the name: "Mittelos Bioscience" is a front company, purportedly doing biological
+research, but actually at least in part researching time travel, on TV's "Lost." "Mittelos"
+is an anagram of "lost time," and I think of the Event Calculus as providing "time travel"
+for software, by reifying state and change and supporting deduction, induction, and
+abduction over them. The "Event Calculus Explained" link, above, explains. :-)
