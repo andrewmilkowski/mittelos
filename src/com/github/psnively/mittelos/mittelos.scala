@@ -85,12 +85,6 @@ object mittelos
     else os_arch = ARCHTypeEnum.UNKNOWN
 
     result = result + os_type + "_" + os_arch
-    os_type match
-    {
-    	case OSTypeEnum.APPLE => result = "lib" + result + ".jnilib"
-    	case OSTypeEnum.WINDOWS => result = result + ".dll"
-    	case _ => result = "lib" + result + ".so"
-    }
 
     result
   }
