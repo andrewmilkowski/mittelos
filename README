@@ -52,7 +52,7 @@ Yech.
 
 So the goal is to create an internal, or embedded (the terminology seems unsettled) DSL
 for the first-order predicate calculus in Scala, and to provide an implementation of the DEC
-in it. I strongly suspect that this can be done well by leveraging
+in it. I had strongly suspected that this could be done well by leveraging
 <http://alloy.mit.edu/kodkod>
 because it already supports the first-order predicate calculus, is written in Java, is
 explicitly designed to be embedded (even providing its own AST package), and calls directly
@@ -65,7 +65,7 @@ encoded as constraints in the problem, thereby forcing the SAT solver to "redisc
 already-known values). The kodkod papers go into excruciating detail on these and other
 points.
 
-NB. I could be wrong about this, and I may need to either fork kodkod, or abandon it
+NB. I was wrong about this, and I need to abandon it
 completely and come up with my own encoding analogous to that done by the C program in
 the decreasoner. Also, I see a tantalizing possible connection to FRP (Functional Reactive
 Programming) and/or AOP, but one (big) thing at a time.
